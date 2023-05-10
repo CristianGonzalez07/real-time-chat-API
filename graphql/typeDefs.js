@@ -1,8 +1,12 @@
 
 const typeDefs = `
-  type Book {
-    title: String
-    author: String
+  """
+    Representa un mensaje en el sistema.
+  """
+  type Message {
+    _id: ID
+    content: String!
+    timestamps: String!
   }
 
   type Post {
@@ -11,7 +15,7 @@ const typeDefs = `
   }
 
   type Query {
-    books: [Book]
+    getMessages: [Message]
   }
 
   type Mutation {

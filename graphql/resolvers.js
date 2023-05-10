@@ -19,20 +19,11 @@ const pubsub = new RedisPubSub({
 // Nombre del canal de suscripción
 const channelName = 'POST_CREATED';
 
-const books = [
-  {
-    title: 'The Awakening',
-    author: 'Kate Chopin',
-  },
-  {
-    title: 'City of Glass',
-    author: 'Paul Auster',
-  },
-];
-
 const resolvers = {
   Query: {
-    books: () => books,
+    async getMessages(parent, args, { authorization }) {
+      return await models.Messages.getAll()
+    }
   },
   Mutation: {
     async createPost(parent, args, { authorization }) {
