@@ -1,5 +1,6 @@
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import dotenv from 'dotenv';
+import * as models from "../models/index.js";
 
 dotenv.config();
 
@@ -34,9 +35,9 @@ const resolvers = {
     books: () => books,
   },
   Mutation: {
-    createPost(parent, args, { authorization }) {
-      console.log("CREATE_POST")
+    async createPost(parent, args, { authorization }) {
       // Publicar un evento en el canal de suscripción
+      await models.Messages.create(args)
       pubsub.publish(channelName, { postCreated: args }); 
       return { ...args };
     },
