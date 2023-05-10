@@ -17,7 +17,7 @@ const pubsub = new RedisPubSub({
 });
 
 // Nombre del canal de suscripción
-const channelName = 'POST_CREATED';
+const channelName = 'Messages';
 
 const resolvers = {
   Query: {
@@ -27,10 +27,10 @@ const resolvers = {
   },
   Mutation: {
     async sendMessage(parent, { content }, { authorization }) {
-      const timestamp = new Date().toISOString
+      const timestamp = new Date().toISOString()
       const [res,error] = await models.Messages.create({content, timestamp});
       if(!error){
-        pubsub.publish(channelName, { newMessage: {content, timestamp} }); 
+        pubsub.publish(channelName, {messageSent:{content, timestamp}}); 
         return true;
       }else{
         console.log("error: ", res)
@@ -39,7 +39,7 @@ const resolvers = {
     },
   },
   Subscription: {
-    postCreated: {
+    messageSent: {
       // Suscribirse al canal de suscripción para recibir eventos
       subscribe: () => pubsub.asyncIterator([channelName]),
     },

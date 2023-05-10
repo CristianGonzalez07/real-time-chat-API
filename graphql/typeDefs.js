@@ -6,12 +6,7 @@ const typeDefs = `
   type Message {
     _id: ID
     content: String!
-    timestamps: String!
-  }
-
-  type Post {
-    author: String,
-    comment: String
+    timestamp: String!
   }
 
   type Query {
@@ -23,7 +18,7 @@ const typeDefs = `
   }
 
   type Subscription {
-    postCreated: Post
+    messageSent: Message
   }
 `;
 
