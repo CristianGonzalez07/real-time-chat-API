@@ -19,7 +19,7 @@ const typeDefs = `
   }
 
   type Mutation {
-    createPost(author: String, comment: String): Post
+    sendMessage(content: String): Boolean
   }
 
   type Subscription {

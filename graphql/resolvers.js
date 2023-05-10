@@ -26,11 +26,16 @@ const resolvers = {
     }
   },
   Mutation: {
-    async createPost(parent, args, { authorization }) {
-      // Publicar un evento en el canal de suscripción
-      await models.Messages.create(args)
-      pubsub.publish(channelName, { postCreated: args }); 
-      return { ...args };
+    async sendMessage(parent, { content }, { authorization }) {
+      const timestamp = new Date().toISOString
+      const [res,error] = await models.Messages.create({content, timestamp});
+      if(!error){
+        pubsub.publish(channelName, { newMessage: {content, timestamp} }); 
+        return true;
+      }else{
+        console.log("error: ", res)
+        return false
+      }
     },
   },
   Subscription: {

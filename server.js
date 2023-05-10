@@ -59,7 +59,7 @@ await server.start();
 app.use('/graphql', cors(), bodyParser.json(), expressMiddleware(server, {
     context: ({ req }) => {
     const { authorization } = req.headers || {};
-    return { authorization: authorization.replace("Bearer ","") };
+    return { authorization };
   },
   }));
 
