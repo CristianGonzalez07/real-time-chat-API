@@ -13,18 +13,22 @@ import { WebSocketServer } from 'ws';
 
 const auth = expressjwt({
   secret: process.env.SECRET || "jwt_secret",
-  credentialsRequired: false,
+  credentialsRequired: true,
   algorithms: ['HS256']
 });
 
-// Crear el esquema, que será utilizado por separado por ApolloServer y
-// el servidor WebSocket.
 const schema = makeExecutableSchema(Schema);
 
-// Crear una aplicación Express y un servidor HTTP; adjuntaremos tanto el servidor WebSocket
-// como ApolloServer a este servidor HTTP.
 const app = express();
 app.use(auth);
+
+const corsOptions = {
+  origin: process.env.URL,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
+
 const httpServer = createServer(app);
 
 // Crear nuestro servidor WebSocket utilizando el servidor HTTP que acabamos de configurar.
@@ -56,7 +60,7 @@ const server = new ApolloServer({
 });
 
 await server.start();
-app.use('/graphql', cors(), bodyParser.json(), expressMiddleware(server, {
+app.use('/graphql', bodyParser.json(), expressMiddleware(server, {
     context: ({ req }) => {
     const { authorization } = req.headers || {};
     return { authorization };
