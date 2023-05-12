@@ -1,17 +1,13 @@
 
 const typeDefs = `
-  """
-    Representa un mensaje en el sistema.
-  """
+  # Representa un mensaje
   type Message {
     _id: ID
     content: String!
     timestamp: String!
   }
 
-  """
-  Representa un usuario en el sistema.
-  """
+  # Representa un usuario
   type User {
     _id: ID
     name: String!
@@ -20,25 +16,40 @@ const typeDefs = `
     created_at: String!
   }
 
-  """
-  Representa un input de usuario.
-  """
+  # Entrada para crear un usuario
   input UserInput {
     name: String!
     email: String!
     password: String!
   }
 
-  type Query {
-    getMessages: [Message]
+  # Entrada para autenticar un usuario
+  input LoginInput {
+    email: String!
+    password: String!
   }
 
+  # Consultas disponibles
+  type Query {
+    # Obtiene todos los mensajes
+    getMessages: [Message]
+
+    # autentica un usuario
+    login(user: LoginInput!): String
+  }
+
+  # Mutaciones disponibles
   type Mutation {
+    # Envía un mensaje
     sendMessage(content: String!): Boolean
+
+    # Registra un nuevo usuario
     signUp(user: UserInput!): String
   }
 
+  # Suscripciones disponibles
   type Subscription {
+    # Notifica cuando se envía un mensaje
     messageSent: Message
   }
 `;

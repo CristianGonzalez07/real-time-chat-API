@@ -1,6 +1,7 @@
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import bcrypt from "bcrypt";
 import dotenv from 'dotenv';
+import jsonwebtoken from "jsonwebtoken";
 import MongoService from "../services/index.js";
 
 const MessagesService = new MongoService("Messages");
@@ -27,7 +28,27 @@ const resolvers = {
   Query: {
     async getMessages(parent, args, { authorization }) {
       return await MessagesService.getAll()
-    }
+    },
+    async login(parent, { user }, { authorization }) {
+      const storedUser = await UsersService.get({email:user.email});
+      if(storedUser){
+        let auth = null;
+        await bcrypt.compare(user.password, storedUser.password) 
+        .then(function(result) {
+          if(result){
+            var token = jsonwebtoken.sign({ name:user.name }, process.env.SECRET, { expiresIn: '1h' }, { algorithm: 'HS256',noTimestamp: true});
+            auth = {
+              name:storedUser.name,
+              token
+            }
+          }
+        });
+        return auth ? JSON.stringify(auth) : "Error"
+      }else{
+        console.log(error)
+        return "Error"
+      }
+    },
   },
   Mutation: {
     async sendMessage(parent, { user }, { authorization }) {
@@ -49,11 +70,7 @@ const resolvers = {
     });
       const [res,error] = await UsersService.create(user);
       if(!error){
-        let auth = {
-          name:user.name,
-          token:"token"
-        }
-        return JSON.stringify(auth);
+        return "Success"
       }else{
         console.log("error: ", res)
         return "Error"
