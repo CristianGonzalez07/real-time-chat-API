@@ -13,7 +13,7 @@ import { WebSocketServer } from 'ws';
 
 const auth = expressjwt({
   secret: process.env.SECRET || "jwt_secret",
-  credentialsRequired: true,
+  credentialsRequired: false,//change to true in prod
   algorithms: ['HS256']
 });
 
