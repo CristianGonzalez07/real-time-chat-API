@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import dotenv from 'dotenv';
 import jsonwebtoken from "jsonwebtoken";
 import MongoService from "../services/index.js";
+import { ObjectId } from 'mongodb';
 
 const MessagesService = new MongoService("Messages");
 const UsersService = new MongoService("Users");
@@ -39,23 +40,23 @@ const resolvers = {
             var token = jsonwebtoken.sign({ name:user.name }, process.env.SECRET, { expiresIn: '1h' }, { algorithm: 'HS256',noTimestamp: true});
             auth = {
               name:storedUser.name,
+              _id:storedUser._id,
               token
             }
           }
         });
         return auth ? JSON.stringify(auth) : "Error"
       }else{
-        console.log(error)
         return "Error"
       }
     },
   },
   Mutation: {
-    async sendMessage(parent, { user }, { authorization }) {
+    async sendMessage(parent, { content, owner }, { authorization }) {
       const timestamp = new Date().toISOString()
-      const [res,error] = await MessagesService.create({content, timestamp});
+      const [res,error] = await MessagesService.create({content, timestamp, owner:new ObjectId(owner)});
       if(!error){
-        pubsub.publish(channelName, {messageSent:{content, timestamp}}); 
+        pubsub.publish(channelName, {messageSent:{_id:res.insertedId, content, timestamp, owner:new ObjectId(owner)}}); 
         return true;
       }else{
         console.log("error: ", res)
@@ -65,15 +66,14 @@ const resolvers = {
     async signUp(parent, { user }, { authorization }) {
       const created_at = new Date().toISOString();
       user.created_at = created_at;
-      bcrypt.hash(user.password, 10).then(function(hash) {
+      await bcrypt.hash(user.password, 10).then((hash) =>{
         user.password = hash
-    });
+      });
       const [res,error] = await UsersService.create(user);
       if(!error){
         return "Success"
       }else{
         console.log("error: ", res)
-        return "Error"
       }
     },
   },

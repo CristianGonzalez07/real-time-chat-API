@@ -3,6 +3,7 @@ const typeDefs = `
   # Representa un mensaje
   type Message {
     _id: ID
+    owner: String!
     content: String!
     timestamp: String!
   }
@@ -41,7 +42,7 @@ const typeDefs = `
   # Mutaciones disponibles
   type Mutation {
     # Envía un mensaje
-    sendMessage(content: String!): Boolean
+    sendMessage(content: String!, owner:String!): Boolean
 
     # Registra un nuevo usuario
     signUp(user: UserInput!): String
